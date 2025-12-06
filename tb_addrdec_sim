@@ -1,0 +1,516 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_000002a6776be210 .scope module, "tb_addr_decoder" "tb_addr_decoder" 2 6;
+ .timescale 0 0;
+P_000002a677691e40 .param/l "ADDR_DATA_MEM" 1 2 27, C4<00000000000000000000000100000000>;
+P_000002a677691e78 .param/l "ADDR_FACT" 1 2 29, C4<00000000000000000010000000000000>;
+P_000002a677691eb0 .param/l "ADDR_GPIO" 1 2 28, C4<00000000000000000001000000000000>;
+P_000002a677691ee8 .param/l "ADDR_INVALID" 1 2 30, C4<00000000000000000011000000000000>;
+v000002a67771b370_0 .var "addr", 31 0;
+v000002a67771af10_0 .net "cs_data_mem", 0 0, L_000002a6776a3130;  1 drivers
+v000002a67771bff0_0 .net "cs_fact", 0 0, L_000002a6776a38a0;  1 drivers
+v000002a67771cbd0_0 .net "cs_gpio", 0 0, L_000002a6776a2a30;  1 drivers
+v000002a67771b410_0 .var/i "i", 31 0;
+v000002a67771b5f0_0 .var "memRead", 0 0;
+v000002a67771c090_0 .var "memWrite", 0 0;
+v000002a67771c630_0 .var/i "one_hot_pass", 31 0;
+v000002a67771b550_0 .var "rdata_data_mem", 31 0;
+v000002a67771ca90_0 .var "rdata_fact", 31 0;
+v000002a67771b690_0 .var "rdata_gpio", 31 0;
+v000002a67771be10_0 .net "rdata_out", 31 0, v000002a67771c130_0;  1 drivers
+v000002a67771cb30 .array "test_addrs", 3 0, 31 0;
+S_000002a6776b47a0 .scope module, "DUT" "addr_decoder" 2 38, 3 16 0, S_000002a6776be210;
+ .timescale 0 0;
+    .port_info 0 /INPUT 32 "addr";
+    .port_info 1 /INPUT 1 "memRead";
+    .port_info 2 /INPUT 1 "memWrite";
+    .port_info 3 /INPUT 32 "rdata_data_mem";
+    .port_info 4 /INPUT 32 "rdata_gpio";
+    .port_info 5 /INPUT 32 "rdata_fact";
+    .port_info 6 /OUTPUT 1 "cs_data_mem";
+    .port_info 7 /OUTPUT 1 "cs_gpio";
+    .port_info 8 /OUTPUT 1 "cs_fact";
+    .port_info 9 /OUTPUT 32 "rdata_out";
+P_000002a677690540 .param/l "ADDR_DATA_MEM_BASE" 1 3 37, C4<00000000000000000000000000000000>;
+P_000002a677690578 .param/l "ADDR_DATA_MEM_END" 1 3 38, C4<00000000000000000000111111111111>;
+P_000002a6776905b0 .param/l "ADDR_FACT_BASE" 1 3 43, C4<00000000000000000010000000000000>;
+P_000002a6776905e8 .param/l "ADDR_FACT_END" 1 3 44, C4<00000000000000000010111111111111>;
+P_000002a677690620 .param/l "ADDR_GPIO_BASE" 1 3 40, C4<00000000000000000001000000000000>;
+P_000002a677690658 .param/l "ADDR_GPIO_END" 1 3 41, C4<00000000000000000001111111111111>;
+L_000002a6776a36e0 .functor AND 1, L_000002a67771c770, L_000002a67771ad30, C4<1>, C4<1>;
+L_000002a6776a3910 .functor AND 1, L_000002a67771afb0, L_000002a67771b050, C4<1>, C4<1>;
+L_000002a6776a2aa0 .functor AND 1, L_000002a67771bcd0, L_000002a67771ba50, C4<1>, C4<1>;
+L_000002a6776a3360 .functor OR 1, v000002a67771b5f0_0, v000002a67771c090_0, C4<0>, C4<0>;
+L_000002a6776a3130 .functor AND 1, L_000002a6776a36e0, L_000002a6776a3360, C4<1>, C4<1>;
+L_000002a6776a3750 .functor OR 1, v000002a67771b5f0_0, v000002a67771c090_0, C4<0>, C4<0>;
+L_000002a6776a2a30 .functor AND 1, L_000002a6776a3910, L_000002a6776a3750, C4<1>, C4<1>;
+L_000002a6776a2e20 .functor OR 1, v000002a67771b5f0_0, v000002a67771c090_0, C4<0>, C4<0>;
+L_000002a6776a38a0 .functor AND 1, L_000002a6776a2aa0, L_000002a6776a2e20, C4<1>, C4<1>;
+L_000002a677850088 .functor BUFT 1, C4<00000000000000000000000000000000>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1a20_0 .net/2u *"_ivl_0", 31 0, L_000002a677850088;  1 drivers
+L_000002a677850118 .functor BUFT 1, C4<00000000000000000001000000000000>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1160_0 .net/2u *"_ivl_10", 31 0, L_000002a677850118;  1 drivers
+v000002a6776b1980_0 .net *"_ivl_12", 0 0, L_000002a67771afb0;  1 drivers
+L_000002a677850160 .functor BUFT 1, C4<00000000000000000001111111111111>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1ac0_0 .net/2u *"_ivl_14", 31 0, L_000002a677850160;  1 drivers
+v000002a6776b12a0_0 .net *"_ivl_16", 0 0, L_000002a67771b050;  1 drivers
+v000002a6776b1b60_0 .net *"_ivl_2", 0 0, L_000002a67771c770;  1 drivers
+L_000002a6778501a8 .functor BUFT 1, C4<00000000000000000010000000000000>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1520_0 .net/2u *"_ivl_20", 31 0, L_000002a6778501a8;  1 drivers
+v000002a6776b17a0_0 .net *"_ivl_22", 0 0, L_000002a67771bcd0;  1 drivers
+L_000002a6778501f0 .functor BUFT 1, C4<00000000000000000010111111111111>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1f20_0 .net/2u *"_ivl_24", 31 0, L_000002a6778501f0;  1 drivers
+v000002a6776b1c00_0 .net *"_ivl_26", 0 0, L_000002a67771ba50;  1 drivers
+v000002a6776b1020_0 .net *"_ivl_31", 0 0, L_000002a6776a3360;  1 drivers
+v000002a6776b1ca0_0 .net *"_ivl_35", 0 0, L_000002a6776a3750;  1 drivers
+v000002a6776b1200_0 .net *"_ivl_39", 0 0, L_000002a6776a2e20;  1 drivers
+L_000002a6778500d0 .functor BUFT 1, C4<00000000000000000000111111111111>, C4<0>, C4<0>, C4<0>;
+v000002a6776b1e80_0 .net/2u *"_ivl_4", 31 0, L_000002a6778500d0;  1 drivers
+v000002a6776b18e0_0 .net *"_ivl_6", 0 0, L_000002a67771ad30;  1 drivers
+v000002a6776b15c0_0 .net "addr", 31 0, v000002a67771b370_0;  1 drivers
+v000002a6776b1660_0 .net "cs_data_mem", 0 0, L_000002a6776a3130;  alias, 1 drivers
+v000002a6776b1d40_0 .net "cs_fact", 0 0, L_000002a6776a38a0;  alias, 1 drivers
+v000002a6776b1700_0 .net "cs_gpio", 0 0, L_000002a6776a2a30;  alias, 1 drivers
+v000002a6776b1de0_0 .net "in_data_mem_range", 0 0, L_000002a6776a36e0;  1 drivers
+v000002a6776b10c0_0 .net "in_fact_range", 0 0, L_000002a6776a2aa0;  1 drivers
+v000002a6776b1340_0 .net "in_gpio_range", 0 0, L_000002a6776a3910;  1 drivers
+v000002a6776b13e0_0 .net "memRead", 0 0, v000002a67771b5f0_0;  1 drivers
+v000002a6776b1480_0 .net "memWrite", 0 0, v000002a67771c090_0;  1 drivers
+v000002a6776b1840_0 .net "rdata_data_mem", 31 0, v000002a67771b550_0;  1 drivers
+v000002a67771bf50_0 .net "rdata_fact", 31 0, v000002a67771ca90_0;  1 drivers
+v000002a67771bb90_0 .net "rdata_gpio", 31 0, v000002a67771b690_0;  1 drivers
+v000002a67771c130_0 .var "rdata_out", 31 0;
+E_000002a67768cbb0/0 .event anyedge, v000002a6776b1de0_0, v000002a6776b1840_0, v000002a6776b1340_0, v000002a67771bb90_0;
+E_000002a67768cbb0/1 .event anyedge, v000002a6776b10c0_0, v000002a67771bf50_0;
+E_000002a67768cbb0 .event/or E_000002a67768cbb0/0, E_000002a67768cbb0/1;
+L_000002a67771c770 .cmp/ge 32, v000002a67771b370_0, L_000002a677850088;
+L_000002a67771ad30 .cmp/ge 32, L_000002a6778500d0, v000002a67771b370_0;
+L_000002a67771afb0 .cmp/ge 32, v000002a67771b370_0, L_000002a677850118;
+L_000002a67771b050 .cmp/ge 32, L_000002a677850160, v000002a67771b370_0;
+L_000002a67771bcd0 .cmp/ge 32, v000002a67771b370_0, L_000002a6778501a8;
+L_000002a67771ba50 .cmp/ge 32, L_000002a6778501f0, v000002a67771b370_0;
+S_000002a6776c2520 .scope task, "test_chip_select" "test_chip_select" 2 52, 2 52 0, S_000002a6776be210;
+ .timescale 0 0;
+v000002a67771c4f0_0 .var "expected_cs", 2 0;
+v000002a67771c9f0_0 .var "range_name", 256 1;
+v000002a67771c6d0_0 .var "test_addr", 31 0;
+TD_tb_addr_decoder.test_chip_select ;
+    %load/vec4 v000002a67771c6d0_0;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %delay 10, 0;
+    %vpi_call 2 62 "$display", "Test: %s (addr=0x%08x)", v000002a67771c9f0_0, v000002a67771c6d0_0 {0 0 0};
+    %vpi_call 2 63 "$display", "  Expected CS: [data_mem=%b, gpio=%b, fact=%b]", &PV<v000002a67771c4f0_0, 2, 1>, &PV<v000002a67771c4f0_0, 1, 1>, &PV<v000002a67771c4f0_0, 0, 1> {0 0 0};
+    %vpi_call 2 64 "$display", "  Actual CS:   [data_mem=%b, gpio=%b, fact=%b]", v000002a67771af10_0, v000002a67771cbd0_0, v000002a67771bff0_0 {0 0 0};
+    %load/vec4 v000002a67771af10_0;
+    %load/vec4 v000002a67771cbd0_0;
+    %concat/vec4; draw_concat_vec4
+    %load/vec4 v000002a67771bff0_0;
+    %concat/vec4; draw_concat_vec4
+    %load/vec4 v000002a67771c4f0_0;
+    %cmp/e;
+    %jmp/0xz  T_0.0, 4;
+    %vpi_call 2 67 "$display", "  \342\234\223 PASS: Chip selects correct" {0 0 0};
+    %jmp T_0.1;
+T_0.0 ;
+    %vpi_call 2 69 "$display", "  \342\234\227 FAIL: Chip selects mismatch!" {0 0 0};
+T_0.1 ;
+    %vpi_call 2 71 "$display", "\000" {0 0 0};
+    %end;
+S_000002a6778463f0 .scope task, "test_read_mux" "test_read_mux" 2 76, 2 76 0, S_000002a6776be210;
+ .timescale 0 0;
+v000002a67771c590_0 .var "expected_data", 31 0;
+v000002a67771c8b0_0 .var "range_name", 256 1;
+v000002a67771baf0_0 .var "test_addr", 31 0;
+TD_tb_addr_decoder.test_read_mux ;
+    %load/vec4 v000002a67771baf0_0;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %delay 10, 0;
+    %vpi_call 2 86 "$display", "Test: Read from %s (addr=0x%08x)", v000002a67771c8b0_0, v000002a67771baf0_0 {0 0 0};
+    %vpi_call 2 87 "$display", "  Expected rdata: 0x%08x", v000002a67771c590_0 {0 0 0};
+    %vpi_call 2 88 "$display", "  Actual rdata:   0x%08x", v000002a67771be10_0 {0 0 0};
+    %load/vec4 v000002a67771be10_0;
+    %load/vec4 v000002a67771c590_0;
+    %cmp/e;
+    %jmp/0xz  T_1.2, 4;
+    %vpi_call 2 91 "$display", "  \342\234\223 PASS: Read data mux correct" {0 0 0};
+    %jmp T_1.3;
+T_1.2 ;
+    %vpi_call 2 93 "$display", "  \342\234\227 FAIL: Read data mismatch!" {0 0 0};
+T_1.3 ;
+    %vpi_call 2 95 "$display", "\000" {0 0 0};
+    %end;
+    .scope S_000002a6776b47a0;
+T_2 ;
+    %wait E_000002a67768cbb0;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002a67771c130_0, 0, 32;
+    %load/vec4 v000002a6776b1de0_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_2.0, 8;
+    %load/vec4 v000002a6776b1840_0;
+    %store/vec4 v000002a67771c130_0, 0, 32;
+    %jmp T_2.1;
+T_2.0 ;
+    %load/vec4 v000002a6776b1340_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_2.2, 8;
+    %load/vec4 v000002a67771bb90_0;
+    %store/vec4 v000002a67771c130_0, 0, 32;
+    %jmp T_2.3;
+T_2.2 ;
+    %load/vec4 v000002a6776b10c0_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_2.4, 8;
+    %load/vec4 v000002a67771bf50_0;
+    %store/vec4 v000002a67771c130_0, 0, 32;
+T_2.4 ;
+T_2.3 ;
+T_2.1 ;
+    %jmp T_2;
+    .thread T_2, $push;
+    .scope S_000002a6776be210;
+T_3 ;
+    %vpi_call 2 101 "$dumpfile", "addr_decoder_tb.vcd" {0 0 0};
+    %vpi_call 2 102 "$dumpvars", 32'sb00000000000000000000000000000000, S_000002a6776be210 {0 0 0};
+    %vpi_call 2 104 "$display", "========================================" {0 0 0};
+    %vpi_call 2 105 "$display", "Address Decoder Testbench" {0 0 0};
+    %vpi_call 2 106 "$display", "========================================\012" {0 0 0};
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %pushi/vec4 3735928559, 0, 32;
+    %store/vec4 v000002a67771b550_0, 0, 32;
+    %pushi/vec4 305419896, 0, 32;
+    %store/vec4 v000002a67771b690_0, 0, 32;
+    %pushi/vec4 2882400000, 0, 32;
+    %store/vec4 v000002a67771ca90_0, 0, 32;
+    %delay 20, 0;
+    %vpi_call 2 119 "$display", "=== Test 1: Chip Select Generation ===\012" {0 0 0};
+    %pushi/vec4 256, 0, 32;
+    %store/vec4 v000002a67771c6d0_0, 0, 32;
+    %pushi/vec4 4, 0, 3;
+    %store/vec4 v000002a67771c4f0_0, 0, 3;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4481396, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1629506917, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1836020345, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c9f0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_chip_select, S_000002a6776c2520;
+    %join;
+    %pushi/vec4 4096, 0, 32;
+    %store/vec4 v000002a67771c6d0_0, 0, 32;
+    %pushi/vec4 2, 0, 3;
+    %store/vec4 v000002a67771c4f0_0, 0, 3;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1196443983, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c9f0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_chip_select, S_000002a6776c2520;
+    %join;
+    %pushi/vec4 8192, 0, 32;
+    %store/vec4 v000002a67771c6d0_0, 0, 32;
+    %pushi/vec4 1, 0, 3;
+    %store/vec4 v000002a67771c4f0_0, 0, 3;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 70, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1633907823, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1919508844, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c9f0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_chip_select, S_000002a6776c2520;
+    %join;
+    %pushi/vec4 12288, 0, 32;
+    %store/vec4 v000002a67771c6d0_0, 0, 32;
+    %pushi/vec4 0, 0, 3;
+    %store/vec4 v000002a67771c4f0_0, 0, 3;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4812406, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1634494820, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 541156452, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1919251315, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c9f0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_chip_select, S_000002a6776c2520;
+    %join;
+    %vpi_call 2 127 "$display", "=== Test 2: Chip Selects with No Access ===\012" {0 0 0};
+    %pushi/vec4 256, 0, 32;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %delay 10, 0;
+    %vpi_call 2 133 "$display", "Test: Data mem address with memRead=0, memWrite=0" {0 0 0};
+    %vpi_call 2 134 "$display", "  Expected CS: [data_mem=0, gpio=0, fact=0]" {0 0 0};
+    %vpi_call 2 135 "$display", "  Actual CS:   [data_mem=%b, gpio=%b, fact=%b]", v000002a67771af10_0, v000002a67771cbd0_0, v000002a67771bff0_0 {0 0 0};
+    %load/vec4 v000002a67771af10_0;
+    %load/vec4 v000002a67771cbd0_0;
+    %concat/vec4; draw_concat_vec4
+    %load/vec4 v000002a67771bff0_0;
+    %concat/vec4; draw_concat_vec4
+    %cmpi/e 0, 0, 3;
+    %jmp/0xz  T_3.0, 4;
+    %vpi_call 2 138 "$display", "  \342\234\223 PASS: Chip selects inactive as expected\012" {0 0 0};
+    %jmp T_3.1;
+T_3.0 ;
+    %vpi_call 2 140 "$display", "  \342\234\227 FAIL: Chip selects should be inactive!\012" {0 0 0};
+T_3.1 ;
+    %vpi_call 2 144 "$display", "=== Test 3: Read Data Multiplexing ===\012" {0 0 0};
+    %pushi/vec4 256, 0, 32;
+    %store/vec4 v000002a67771baf0_0, 0, 32;
+    %pushi/vec4 3735928559, 0, 32;
+    %store/vec4 v000002a67771c590_0, 0, 32;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4481396, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1629506917, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1836020345, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c8b0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_read_mux, S_000002a6778463f0;
+    %join;
+    %pushi/vec4 4096, 0, 32;
+    %store/vec4 v000002a67771baf0_0, 0, 32;
+    %pushi/vec4 305419896, 0, 32;
+    %store/vec4 v000002a67771c590_0, 0, 32;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1196443983, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c8b0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_read_mux, S_000002a6778463f0;
+    %join;
+    %pushi/vec4 8192, 0, 32;
+    %store/vec4 v000002a67771baf0_0, 0, 32;
+    %pushi/vec4 2882400000, 0, 32;
+    %store/vec4 v000002a67771c590_0, 0, 32;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 70, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1633907823, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1919508844, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c8b0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_read_mux, S_000002a6778463f0;
+    %join;
+    %pushi/vec4 12288, 0, 32;
+    %store/vec4 v000002a67771baf0_0, 0, 32;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002a67771c590_0, 0, 32;
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 0, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 4812406, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1634494820, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 541156452, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %pushi/vec4 1919251315, 0, 32; draw_string_vec4
+    %concat/vec4; draw_string_vec4
+    %store/vec4 v000002a67771c8b0_0, 0, 256;
+    %fork TD_tb_addr_decoder.test_read_mux, S_000002a6778463f0;
+    %join;
+    %vpi_call 2 152 "$display", "=== Test 4: Chip Selects on Write ===\012" {0 0 0};
+    %pushi/vec4 4096, 0, 32;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %delay 10, 0;
+    %vpi_call 2 159 "$display", "Test: GPIO write operation" {0 0 0};
+    %vpi_call 2 160 "$display", "  Expected CS: [data_mem=0, gpio=1, fact=0]" {0 0 0};
+    %vpi_call 2 161 "$display", "  Actual CS:   [data_mem=%b, gpio=%b, fact=%b]", v000002a67771af10_0, v000002a67771cbd0_0, v000002a67771bff0_0 {0 0 0};
+    %load/vec4 v000002a67771cbd0_0;
+    %cmpi/e 1, 0, 1;
+    %flag_get/vec4 4;
+    %jmp/0 T_3.5, 4;
+    %load/vec4 v000002a67771af10_0;
+    %pushi/vec4 0, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %and;
+T_3.5;
+    %flag_set/vec4 9;
+    %flag_get/vec4 9;
+    %jmp/0 T_3.4, 9;
+    %load/vec4 v000002a67771bff0_0;
+    %pushi/vec4 0, 0, 1;
+    %cmp/e;
+    %flag_get/vec4 4;
+    %and;
+T_3.4;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_3.2, 8;
+    %vpi_call 2 164 "$display", "  \342\234\223 PASS: GPIO chip select active on write\012" {0 0 0};
+    %jmp T_3.3;
+T_3.2 ;
+    %vpi_call 2 166 "$display", "  \342\234\227 FAIL: Chip select behavior incorrect on write!\012" {0 0 0};
+T_3.3 ;
+    %vpi_call 2 170 "$display", "=== Test 5: One-Hot Chip Select Verification ===\012" {0 0 0};
+    %pushi/vec4 1, 0, 32;
+    %store/vec4 v000002a67771c630_0, 0, 32;
+    %pushi/vec4 256, 0, 32;
+    %ix/load 4, 0, 0;
+    %flag_set/imm 4, 0;
+    %store/vec4a v000002a67771cb30, 4, 0;
+    %pushi/vec4 4096, 0, 32;
+    %ix/load 4, 1, 0;
+    %flag_set/imm 4, 0;
+    %store/vec4a v000002a67771cb30, 4, 0;
+    %pushi/vec4 8192, 0, 32;
+    %ix/load 4, 2, 0;
+    %flag_set/imm 4, 0;
+    %store/vec4a v000002a67771cb30, 4, 0;
+    %pushi/vec4 12288, 0, 32;
+    %ix/load 4, 3, 0;
+    %flag_set/imm 4, 0;
+    %store/vec4a v000002a67771cb30, 4, 0;
+    %pushi/vec4 1, 0, 1;
+    %store/vec4 v000002a67771b5f0_0, 0, 1;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000002a67771c090_0, 0, 1;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002a67771b410_0, 0, 32;
+T_3.6 ;
+    %load/vec4 v000002a67771b410_0;
+    %cmpi/s 4, 0, 32;
+    %jmp/0xz T_3.7, 5;
+    %ix/getv/s 4, v000002a67771b410_0;
+    %load/vec4a v000002a67771cb30, 4;
+    %store/vec4 v000002a67771b370_0, 0, 32;
+    %delay 10, 0;
+    %load/vec4 v000002a67771af10_0;
+    %pad/u 32;
+    %load/vec4 v000002a67771cbd0_0;
+    %pad/u 32;
+    %add;
+    %load/vec4 v000002a67771bff0_0;
+    %pad/u 32;
+    %add;
+    %cmpi/u 1, 0, 32;
+    %flag_or 5, 4; GT is !LE
+    %flag_inv 5;
+    %jmp/0xz  T_3.8, 5;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002a67771c630_0, 0, 32;
+T_3.8 ;
+    %load/vec4 v000002a67771b410_0;
+    %addi 1, 0, 32;
+    %store/vec4 v000002a67771b410_0, 0, 32;
+    %jmp T_3.6;
+T_3.7 ;
+    %load/vec4 v000002a67771c630_0;
+    %cmpi/e 1, 0, 32;
+    %jmp/0xz  T_3.10, 4;
+    %vpi_call 2 188 "$display", "  \342\234\223 PASS: One-hot property verified (max 1 CS active)\012" {0 0 0};
+    %jmp T_3.11;
+T_3.10 ;
+    %vpi_call 2 190 "$display", "  \342\234\227 FAIL: One-hot property violated!\012" {0 0 0};
+T_3.11 ;
+    %vpi_call 2 192 "$display", "========================================" {0 0 0};
+    %vpi_call 2 193 "$display", "Address Decoder Testbench Completed" {0 0 0};
+    %vpi_call 2 194 "$display", "========================================" {0 0 0};
+    %vpi_call 2 196 "$finish" {0 0 0};
+    %end;
+    .thread T_3;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "soc_tb/tb_addr_decoder.v";
+    "soc/addr_decoder.v";
