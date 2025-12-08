@@ -1,6 +1,6 @@
 module imem (
         input  wire [5:0]  a,
-        output wire [31:0] y
+        output wire [31:0] rd
     );
 
     reg [31:0] rom [0:63];
@@ -9,7 +9,7 @@ module imem (
         $readmemh ("memfile.dat", rom);
     end
 
-    assign y = rom[a];
+    assign rd = rom[a];
     
 endmodule
 
