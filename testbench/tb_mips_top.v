@@ -9,9 +9,9 @@ module tb_mips_top;
     wire [31:0] wd_dm;
     wire [31:0] rd_dm;
     wire [31:0] DONT_USE;
-    
+
     integer i;
-    
+
     mips_top DUT (
             .clk            (clk),
             .rst            (rst),
@@ -24,22 +24,22 @@ module tb_mips_top;
             .rd_dm          (rd_dm),
             .rd3            (DONT_USE)
         );
-    
-    task tick; 
-    begin 
+
+    task tick;
+    begin
         clk = 1'b0; #5;
         clk = 1'b1; #5;
     end
     endtask
 
     task reset;
-    begin 
+    begin
         rst = 1'b0; #5;
         rst = 1'b1; #5;
         rst = 1'b0;
     end
     endtask
-    
+
     initial begin
         reset;
         for(i = 0; i < 13; i = i + 1)

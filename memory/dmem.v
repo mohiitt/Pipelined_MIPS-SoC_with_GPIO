@@ -8,19 +8,18 @@ module dmem (
 );
     reg [31:0] ram [0:63];
     integer n;
-    
+
     initial begin
-        for (n = 0; n < 64; n = n + 1) 
-            ram[n] = 32'hFFFFFFFF;  
+        for (n = 0; n < 64; n = n + 1)
+            ram[n] = 32'hFFFFFFFF;
     end
-    
+
     always @ (posedge clk, posedge rst) begin
-        if (rst) 
-            for (n = 0; n < 64; n = n + 1) 
-                ram[n] = 32'hFFFFFFFF; 
-        else if (we) 
+        if (rst)
+            for (n = 0; n < 64; n = n + 1)
+                ram[n] = 32'hFFFFFFFF;
+        else if (we)
             ram[a] <= wd;
     end
  assign rd = ram[a];
 endmodule
-

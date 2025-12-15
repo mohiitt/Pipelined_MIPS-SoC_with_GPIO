@@ -1,48 +1,32 @@
-// ============================================================================
-// Pipelined Datapath for 5-Stage MIPS CPU
-// Stages: IF -> ID -> EX -> MEM -> WB
-// Includes forwarding, hazard detection, and pipeline registers
-// ============================================================================
+
 
 module pipelined_datapath (
     input  wire        clk,
     input  wire        rst,
-    
-    // External memory interfaces
-    input  wire [31:0] instr_F,        // Instruction from IMEM
-    input  wire [31:0] rd_dm,          // Data from DMEM
-    
-    // External test interface
+
+    input  wire [31:0] instr_F,
+    input  wire [31:0] rd_dm,
+
     input  wire [4:0]  ra3,
     output wire [31:0] rd3,
-    
-    // Outputs
-    output wire [31:0] pc_F,           // PC for instruction fetch
-    output wire [31:0] alu_out_M,      // Address for data memory
-    output wire [31:0] wd_dm_M,        // Write data for memory
-    output wire        we_dm_M,        // Memory write enable
-    output wire        mem_read_M      // Memory read enable (from dm2reg)
+
+    output wire [31:0] pc_F,
+    output wire [31:0] alu_out_M,
+    output wire [31:0] wd_dm_M,
+    output wire        we_dm_M,
+    output wire        mem_read_M
 );
 
-    // ========================================================================
-    // IF Stage Signals
-    // ========================================================================
     wire [31:0] pc_next_F;
     wire [31:0] pc_plus4_F;
     wire        stall_F;
-    
-    // ========================================================================
-    // IF/ID Pipeline Register Signals
-    // ========================================================================
+
     wire [31:0] instr_D;
     wire [31:0] pc_plus4_D;
     wire        stall_D;
     wire        flush_D;
-    wire        valid_D; // Valid indicator
-    
-    // ========================================================================
-    // ID Stage Signals
-    // ========================================================================
+    wire        valid_D;
+
     wire [5:0]  opcode_D;
     wire [5:0]  funct_D;
     wire [4:0]  rs_D;
@@ -50,7 +34,7 @@ module pipelined_datapath (
     wire [4:0]  rd_D;
     wire [4:0]  shamt_D;
     wire [15:0] imm_D;
-    
+
     wire        branch_D;
     wire        jump_D;
     wire        jal_D;
@@ -59,12 +43,12 @@ module pipelined_datapath (
     wire        we_reg_D;
     wire        alu_src_D;
     wire        we_dm_D;
-    wire        valid_inst_D; // Valid Instruction from Control Unit
+    wire        valid_inst_D;
     wire        dm2reg_D;
     wire [3:0]  alu_ctrl_D;
     wire        hilo_wd_D;
     wire [1:0]  hilo_mux_ctrl_D;
-    
+
     wire [31:0] rd1_D;
     wire [31:0] rd2_D;
     wire [31:0] sext_imm_D;
@@ -72,10 +56,7 @@ module pipelined_datapath (
     wire [31:0] jta_D;
     wire        zero_D;
     wire        pc_src_D;
-    
-    // ========================================================================
-    // ID/EX Pipeline Register Signals
-    // ========================================================================
+
     wire        reg_dst_E;
     wire        alu_src_E;
     wire [3:0]  alu_ctrl_E;
@@ -84,7 +65,7 @@ module pipelined_datapath (
     wire        we_reg_E;
     wire        hilo_wd_E;
     wire [1:0]  hilo_mux_ctrl_E;
-    
+
     wire [31:0] rd1_E;
     wire [31:0] rd2_E;
     wire [4:0]  rs_E;
@@ -94,11 +75,8 @@ module pipelined_datapath (
     wire [4:0]  shamt_E;
     wire [31:0] pc_plus4_E;
     wire        flush_E;
-    wire        valid_E; // Valid indicator
-    
-    // ========================================================================
-    // EX Stage Signals
-    // ========================================================================
+    wire        valid_E;
+
     wire [1:0]  forward_A;
     wire [1:0]  forward_B;
     wire [31:0] alu_pa_fwd;
@@ -108,10 +86,7 @@ module pipelined_datapath (
     wire [4:0]  write_reg_E;
     wire [63:0] mult_product_E;
     wire        zero_E;
-    
-    // ========================================================================
-    // EX/MEM Pipeline Register Signals
-    // ========================================================================
+
     wire        dm2reg_M;
     wire        we_reg_M;
     wire        hilo_wd_M;
@@ -119,17 +94,11 @@ module pipelined_datapath (
     wire [4:0]  write_reg_M;
     wire [31:0] pc_plus4_M;
     wire [63:0] mult_product_M;
-    wire        valid_M; // Valid indicator
-    
-    // ========================================================================
-    // MEM Stage Signals
-    // ========================================================================
+    wire        valid_M;
+
     wire [31:0] hi_out_M;
     wire [31:0] lo_out_M;
-    
-    // ========================================================================
-    // MEM/WB Pipeline Register Signals
-    // ========================================================================
+
     wire        dm2reg_W;
     wire        we_reg_W;
     wire [1:0]  hilo_mux_ctrl_W;
@@ -139,27 +108,16 @@ module pipelined_datapath (
     wire [31:0] pc_plus4_W;
     wire [31:0] hi_out_W;
     wire [31:0] lo_out_W;
-    
-    // ========================================================================
-    // WB Stage Signals
-    // ========================================================================
+
     wire [31:0] result_W;
-    wire        valid_W; // Valid indicator
-    
-    // ========================================================================
-    // JAL support
-    // ========================================================================
+    wire        valid_W;
+
     wire        jal_E;
     wire        jal_M;
     wire        jal_W;
     wire [4:0]  final_write_reg_W;
     wire [31:0] final_wd_W;
-    
-    // ========================================================================
-    // IF STAGE
-    // ========================================================================
-    
-    // PC register with enable (for stalls)
+
     dreg #(32) pc_reg (
         .clk(clk),
         .rst(rst),
@@ -167,24 +125,15 @@ module pipelined_datapath (
         .d(pc_next_F),
         .q(pc_F)
     );
-    
-    // PC + 4
+
     adder pc_adder (
         .a(pc_F),
         .b(32'd4),
         .y(pc_plus4_F)
     );
-    
-    // PC source selection moved to after ID stage forwarding logic to use cmp1_D
-    // assign pc_next_F = ...
-    
-    // Flush IF/ID on control transfers
-    // Driven by Hazard Unit
+
     assign flush_D = flush_D_haz;
-    
-    // ========================================================================
-    // IF/ID Pipeline Register
-    // ========================================================================
+
     if_id_reg if_id (
         .clk(clk),
         .rst(rst),
@@ -196,12 +145,7 @@ module pipelined_datapath (
         .pc_plus4_D(pc_plus4_D),
         .valid_D(valid_D)
     );
-    
-    // ========================================================================
-    // ID STAGE
-    // ========================================================================
-    
-    // Instruction decode
+
     assign opcode_D = instr_D[31:26];
     assign funct_D  = instr_D[5:0];
     assign rs_D     = instr_D[25:21];
@@ -209,8 +153,7 @@ module pipelined_datapath (
     assign rd_D     = instr_D[15:11];
     assign shamt_D  = instr_D[10:6];
     assign imm_D    = instr_D[15:0];
-    
-    // Control unit
+
     controlunit cu (
         .opcode(opcode_D),
         .funct(funct_D),
@@ -229,22 +172,9 @@ module pipelined_datapath (
         .valid_inst(valid_inst_D)
     );
 
-    // Hazard Unit Signals Generation (User Step 5)
     wire jump_combo_D;
     wire jump_reg_combo_D;
-    
-    // JumpD = J or JAL. Opcode J=000010, JAL=000011.
-    // My control unit outputs 'jump' for JAL? Yes maindec bit 1.
-    // So 'jump_D' from control unit is J | JAL.
-    // 'jump_reg_D' from control unit is JR.
-    // So I can use them directly or implement logic.
-    // User requested "assign JumpD = ...".
-    // I will use my control unit outputs since they are already decoded.
-    // But hazard unit expects 'JumpD'. I will connect 'jump_D'.
-    
-    // ========================================================================
-    
-    // Register file (writes in WB stage)
+
     regfile rf (
         .clk(clk),
         .we(we_reg_W),
@@ -258,14 +188,12 @@ module pipelined_datapath (
         .rd3(rd3),
         .rst(rst)
     );
-    
-    // Sign extend
+
     signext se (
         .a(imm_D),
         .y(sext_imm_D)
     );
-    
-    // Branch target address
+
     wire [31:0] ba_D;
     assign ba_D = {sext_imm_D[29:0], 2'b00};
     adder branch_adder (
@@ -273,31 +201,25 @@ module pipelined_datapath (
         .b(ba_D),
         .y(bta_D)
     );
-    
-    // Jump target address
+
     assign jta_D = {pc_plus4_D[31:28], instr_D[25:0], 2'b00};
-    
-    // Branch comparator (early branch resolution in ID)
-    // Forwarding logic for Branch Comparator to resolve MEM/EX stage hazards
+
     reg [31:0] cmp1_D;
     reg [31:0] cmp2_D;
-    
+
     always @(*) begin
-        // Forward A: Check EX stage (ALU forwarding to ID)
-        // If EX instruction writes to register and it's an ALU op (not load), we can forward alu_out_E
-        // Note: We check if it's NOT a load (dm2reg_E indicates load)
+
         if ((rs_D != 0) && (rs_D == write_reg_E) && we_reg_E && !dm2reg_E)
             cmp1_D = alu_out_E;
-        // Forward A: Check MEM stage
+
         else if ((rs_D != 0) && (rs_D == write_reg_M) && we_reg_M)
             cmp1_D = alu_out_M;
         else
             cmp1_D = rd1_D;
 
-        // Forward B: Check EX stage
         if ((rt_D != 0) && (rt_D == write_reg_E) && we_reg_E && !dm2reg_E)
             cmp2_D = alu_out_E;
-        // Forward B: Check MEM stage
+
         else if ((rt_D != 0) && (rt_D == write_reg_M) && we_reg_M)
             cmp2_D = alu_out_M;
         else
@@ -307,51 +229,40 @@ module pipelined_datapath (
     assign zero_D = (cmp1_D == cmp2_D);
     assign pc_src_D = branch_D & zero_D;
 
-    // PC source selection (from ID stage)
-    // Moved here to allow use of forwarded cmp1_D for JR
     assign pc_next_F = (jump_D) ? jta_D :
                        (pc_src_D) ? bta_D :
-                       (jump_reg_D) ? cmp1_D :  // JR uses forwarded rs value
+                       (jump_reg_D) ? cmp1_D :
                        pc_plus4_F;
-    
-    // ========================================================================
-    // Hazard Detection Unit
-    // ========================================================================
-    // Hazard Detection Unit (User Logic)
-    // ========================================================================
+
     wire [1:0] forward_A_haz;
     wire [1:0] forward_B_haz;
     wire       flush_D_haz;
-    
+
     hazard_unit hdu (
-        // Decode Stage
+
         .RsD(rs_D),
         .RtD(rt_D),
-        .BranchD(pc_src_D),   // Only flush if Branch is TAKEN
-        .JumpD(jump_D),       // J or JAL
-        .JumpRegD(jump_reg_D), // JR
+        .BranchD(pc_src_D),
+        .JumpD(jump_D),
+        .JumpRegD(jump_reg_D),
         .OpcodeD(opcode_D),
         .FunctD(funct_D),
         .clk(clk),
         .rst(rst),
-        
-        // Execute Stage
+
         .RsE(rs_E),
         .RtE(rt_E),
-        .WriteRegE(write_reg_E),
-        .RegWriteE(we_reg_E),
-        .MemToRegE(dm2reg_E),
-        
-        // Memory Stage
-        .WriteRegM(write_reg_M),
-        .RegWriteM(we_reg_M),
-        .MemToRegM(dm2reg_M),
-        
-        // Writeback Stage
-        .WriteRegW(write_reg_W),
-        .RegWriteW(we_reg_W),
-        
-        // Outputs
+        .wa_reg_E(write_reg_E),
+        .we_reg_E(we_reg_E),
+        .dm2reg_E(dm2reg_E),
+
+        .wa_reg_M(write_reg_M),
+        .we_reg_M(we_reg_M),
+        .dm2reg_M(dm2reg_M),
+
+        .wa_reg_W(write_reg_W),
+        .we_reg_W(we_reg_W),
+
         .StallF(stall_F),
         .StallD(stall_D),
         .FlushE(flush_E),
@@ -359,26 +270,10 @@ module pipelined_datapath (
         .ForwardAE(forward_A_haz),
         .ForwardBE(forward_B_haz)
     );
-    
-    // Connect Hazard Unit Forwarding to Datapath Forwarding Wires
+
     assign forward_A = forward_A_haz;
     assign forward_B = forward_B_haz;
-    
-    // Connect Hazard Unit FlushD to Datapath FlushD
-    // AND combine with existing logic? User says "assign control_flush = ...". 
-    // And "control_flush = (BranchD || JumpD || JumpRegD)".
-    // So hazard_unit 'FlushD' covers all control flushes.
-    // So distinct 'flush_D' assignments in datapath should be replaced/wired.
-    
-    // Original 'flush_D' assignment at top of file (around line 180) needs update.
-    // For now I define 'flush_D_haz' and will OR it? 
-    // User logic covers ALL control hazards.
-    // So I should drive 'flush_D' from 'flush_D_haz'.
-    // I need to change the 'assign flush_D' line.
-    
-    // ========================================================================
-    // ID/EX Pipeline Register
-    // ========================================================================
+
     id_ex_reg id_ex (
         .clk(clk),
         .rst(rst),
@@ -420,36 +315,22 @@ module pipelined_datapath (
         .shamt_E(shamt_E),
         .pc_plus4_E(pc_plus4_E)
     );
-    
-    // ========================================================================
-    // EX STAGE
-    // ========================================================================
-    
-    // Forwarding Unit
-    // REPLACED BY HAZARD UNIT LOGIC
-    // forwarding_unit fwd ( ... );
-    // Assignment now done by hdu logic above.
-    // assign forward_A and forward_B handled above.
-    
-    // Forward mux for ALU input A
+
     assign alu_pa_fwd = (forward_A == 2'b10) ? alu_out_M :
                         (forward_A == 2'b01) ? result_W :
                         rd1_E;
-    
-    // Forward mux for ALU input B (before alu_src mux)
+
     assign alu_pb_fwd = (forward_B == 2'b10) ? alu_out_M :
                         (forward_B == 2'b01) ? result_W :
                         rd2_E;
-    
-    // ALU source mux
+
     mux2 #(32) alu_src_mux (
         .sel(alu_src_E),
         .a(alu_pb_fwd),
         .b(sext_imm_E),
         .y(alu_pb_E)
     );
-    
-    // ALU
+
     alu alu0 (
         .op(alu_ctrl_E),
         .a(alu_pa_fwd),
@@ -458,15 +339,13 @@ module pipelined_datapath (
         .zero(zero_E),
         .y(alu_out_E)
     );
-    
-    // Multiplier
+
     multiplier mult (
         .a(alu_pa_fwd),
         .b(alu_pb_fwd),
         .product(mult_product_E)
     );
-    
-    // Write register selection
+
     wire [4:0] write_reg_tmp_E;
     mux2 #(5) write_reg_mux (
         .sel(reg_dst_E),
@@ -475,10 +354,7 @@ module pipelined_datapath (
         .y(write_reg_tmp_E)
     );
     assign write_reg_E = (jal_E) ? 5'd31 : write_reg_tmp_E;
-    
-    // ========================================================================
-    // EX/MEM Pipeline Register
-    // ========================================================================
+
     ex_mem_reg ex_mem (
         .clk(clk),
         .rst(rst),
@@ -494,7 +370,7 @@ module pipelined_datapath (
         .write_reg_E(write_reg_E),
         .pc_plus4_E(pc_plus4_E),
         .mult_product_E(mult_product_E),
-        
+
         .we_dm_M(we_dm_M),
         .dm2reg_M(dm2reg_M),
         .we_reg_M(we_reg_M),
@@ -508,12 +384,7 @@ module pipelined_datapath (
         .pc_plus4_M(pc_plus4_M),
         .mult_product_M(mult_product_M)
     );
-    
-    // ========================================================================
-    // MEM STAGE
-    // ========================================================================
-    
-    // HILO Register
+
     hilo_reg hilo (
         .clk(clk),
         .rst(rst),
@@ -522,10 +393,7 @@ module pipelined_datapath (
         .hi(hi_out_M),
         .lo(lo_out_M)
     );
-    
-    // ========================================================================
-    // MEM/WB Pipeline Register
-    // ========================================================================
+
     mem_wb_reg mem_wb (
         .clk(clk),
         .rst(rst),
@@ -540,7 +408,7 @@ module pipelined_datapath (
         .pc_plus4_M(pc_plus4_M),
         .hi_out_M(hi_out_M),
         .lo_out_M(lo_out_M),
-        
+
         .dm2reg_W(dm2reg_W),
         .we_reg_W(we_reg_W),
         .hilo_mux_ctrl_W(hilo_mux_ctrl_W),
@@ -554,38 +422,27 @@ module pipelined_datapath (
         .lo_out_W(lo_out_W)
     );
 
-    // ========================================================================
-    // WB STAGE
-    // ========================================================================
-    
-    // HILO output selection
     reg [31:0] alu_or_hilo_W;
     always @(*) begin
         case (hilo_mux_ctrl_W)
-            2'b01:   alu_or_hilo_W = hi_out_W;   // MFHI
-            2'b10:   alu_or_hilo_W = lo_out_W;   // MFLO
-            default: alu_or_hilo_W = alu_out_W;  // Normal ALU result
+            2'b01:   alu_or_hilo_W = hi_out_W;
+            2'b10:   alu_or_hilo_W = lo_out_W;
+            default: alu_or_hilo_W = alu_out_W;
         endcase
     end
-    
-    // Memory to register mux
+
     mux2 #(32) mem_to_reg_mux (
         .sel(dm2reg_W),
         .a(alu_or_hilo_W),
         .b(rd_dm_W),
         .y(result_W)
     );
-    
-    // JAL support - detect JAL in pipeline
-    // JAL writes $ra (reg 31) instead of normal destination
-    // JAL writes PC+4 instead of ALU/memory result
-    // assign jal_W = (write_reg_W == 5'd31) && we_reg_W;  // REMOVED: Now using explicit passed signal
-    assign final_write_reg_W = write_reg_W;  // Already set to 31 by reg_dst mux in ID
-    assign final_write_reg_W = write_reg_W;  // Already set to 31 by reg_dst mux in ID
-    // JAL saves PC+4 (Return Address) - No Delay Slot
+
+    assign final_write_reg_W = write_reg_W;
+    assign final_write_reg_W = write_reg_W;
+
     assign final_wd_W = jal_W ? pc_plus4_W : result_W;
-    
-    // Output assignment
+
     assign mem_read_M = dm2reg_M;
 
 endmodule

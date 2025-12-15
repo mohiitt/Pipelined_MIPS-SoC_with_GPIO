@@ -11,14 +11,14 @@ module controlunit (
     output wire        dm2reg,
     output wire [3:0]  alu_ctrl,
     output wire        jump_reg,
-    output wire        hilo_wd, 
+    output wire        hilo_wd,
     output wire [1:0] hilo_mux_ctrl,
     output wire       valid_inst
 );
 
     wire [1:0] alu_op;
     wire jr_signal;
-    wire hilo_wd_internal; 
+    wire hilo_wd_internal;
     wire [1:0] hilo_mux_internal;
 
     maindec md (
@@ -39,12 +39,12 @@ module controlunit (
         .alu_op         (alu_op),
         .funct          (funct),
         .alu_ctrl       (alu_ctrl),
-        .jr                 (jr_signal), 
-        .hilo_wd      (hilo_wd_internal), 
+        .jr                 (jr_signal),
+        .hilo_wd      (hilo_wd_internal),
         .hilo_mux_ctrl(hilo_mux_internal)
     );
 
     assign jump_reg = jr_signal;
-    assign hilo_wd = hilo_wd_internal; 
+    assign hilo_wd = hilo_wd_internal;
     assign hilo_mux_ctrl = hilo_mux_internal;
 endmodule

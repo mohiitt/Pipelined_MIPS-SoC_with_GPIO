@@ -10,6 +10,5 @@ module imem (
     end
 
     assign rd = rom[a];
-    
-endmodule
 
+endmodule

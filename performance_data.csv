@@ -1,0 +1,5 @@
+N,Pipelined_Software_Cycles,SoC_Hardware_Cycles,Speedup
+1,10,20,0.50
+2,23,20,1.15
+3,32,23,1.39
+4,41,25,1.64

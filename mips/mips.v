@@ -46,7 +46,6 @@ module mips (
         .rd3            (rd3)
     );
 
-
     controlunit cu (
         .opcode         (instr[31:26]),
         .funct          (instr[5:0]),

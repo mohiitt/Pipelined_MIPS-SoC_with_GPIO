@@ -1,7 +1,4 @@
-// ============================================================================
-// Pipelined MIPS Top-Level with Instruction and Data Memory
-// Complete system including IMEM, DMEM, and pipelined CPU
-// ============================================================================
+
 
 module pipelined_mips_top (
     input  wire        clk,
@@ -17,13 +14,11 @@ module pipelined_mips_top (
     wire        mem_write;
     wire [31:0] rd3;
 
-    // Instruction Memory
     imem instruction_memory (
-        .a(pc[7:2]),           // Word-addressed
+        .a(pc[7:2]),
         .rd(instr)
     );
 
-    // Pipelined MIPS CPU
     pipelined_mips cpu (
         .clk(clk),
         .rst(rst),
@@ -37,11 +32,10 @@ module pipelined_mips_top (
         .rd3(rd3)
     );
 
-    // Data Memory
     dmem data_memory (
         .clk(clk),
         .we(mem_write),
-        .a(data_addr[7:2]),    // Word-addressed
+        .a(data_addr[7:2]),
         .wd(write_data),
         .rd(read_data),
         .rst(rst)

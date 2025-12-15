@@ -1,8 +1,8 @@
 module hilo_reg (
     input  wire        clk,
     input  wire        rst,
-    input  wire        we,           
-    input  wire [63:0] product,      
+    input  wire        we,
+    input  wire [63:0] product,
     output reg  [31:0] hi,
     output reg  [31:0] lo
 );

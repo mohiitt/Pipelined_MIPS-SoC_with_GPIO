@@ -4,5 +4,5 @@ module signext (
     );
 
     assign y = {{16{a[15]}}, a};
-    
+
 endmodule

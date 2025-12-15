@@ -15,13 +15,11 @@ module regfile (
     reg [31:0] rf [0:31];
     integer n;
 
-    // Initialize logic
     initial begin
         for (n = 0; n < 32; n = n + 1) rf[n] = 32'h0;
-        rf[29] = 32'h100; // Initialize stack pointer
+        rf[29] = 32'h100;
     end
 
-    // Sequential write
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             for (n = 0; n < 32; n = n + 1) rf[n] = 32'h0;
@@ -32,9 +30,6 @@ module regfile (
         end
     end
 
-    // Combinational read with internal bypass
-    // If reading same register as being written in this cycle (from WB),
-    // use the write data 'wd' directly.
     wire [31:0] bypass_rd1 = (ra1 == 0) ? 0 : (we && wa == ra1) ? wd : rf[ra1];
     wire [31:0] bypass_rd2 = (ra2 == 0) ? 0 : (we && wa == ra2) ? wd : rf[ra2];
     wire [31:0] bypass_rd3 = (ra3 == 0) ? 0 : (we && wa == ra3) ? wd : rf[ra3];

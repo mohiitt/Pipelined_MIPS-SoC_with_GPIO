@@ -1,16 +1,10 @@
-// ============================================================================
-// ID/EX Pipeline Register
-// Latches control signals, register values, and decoded instruction fields
-// from Decode stage to Execute stage
-// Supports flush (for hazards and control flow changes)
-// ============================================================================
+
 
 module id_ex_reg (
     input  wire        clk,
     input  wire        rst,
-    input  wire        flush,          // 1 = clear all control signals
-    
-    // Control signals from ID stage
+    input  wire        flush,
+
     input  wire        reg_dst_D,
     input  wire        alu_src_D,
     input  wire [3:0]  alu_ctrl_D,
@@ -19,20 +13,18 @@ module id_ex_reg (
     input  wire        we_reg_D,
     input  wire        hilo_wd_D,
     input  wire [1:0]  hilo_mux_ctrl_D,
-    input  wire        jal_D, // Add jal_D input
-    input  wire        valid_D, // Valid from ID
-    
-    // Data from ID stage
-    input  wire [31:0] rd1_D,          // Register read data 1
-    input  wire [31:0] rd2_D,          // Register read data 2
-    input  wire [4:0]  rs_D,           // Source register address
-    input  wire [4:0]  rt_D,           // Target register address
-    input  wire [4:0]  rd_D,           // Destination register address
-    input  wire [31:0] sext_imm_D,     // Sign-extended immediate
-    input  wire [4:0]  shamt_D,        // Shift amount
-    input  wire [31:0] pc_plus4_D,     // PC+4 for JAL
-    
-    // Outputs to EX stage
+    input  wire        jal_D,
+    input  wire        valid_D,
+
+    input  wire [31:0] rd1_D,
+    input  wire [31:0] rd2_D,
+    input  wire [4:0]  rs_D,
+    input  wire [4:0]  rt_D,
+    input  wire [4:0]  rd_D,
+    input  wire [31:0] sext_imm_D,
+    input  wire [4:0]  shamt_D,
+    input  wire [31:0] pc_plus4_D,
+
     output reg         reg_dst_E,
     output reg         alu_src_E,
     output reg  [3:0]  alu_ctrl_E,
@@ -41,9 +33,9 @@ module id_ex_reg (
     output reg         we_reg_E,
     output reg         hilo_wd_E,
     output reg  [1:0]  hilo_mux_ctrl_E,
-    output reg         jal_E, // Add jal_E output
-    output reg         valid_E, // Valid out
-    
+    output reg         jal_E,
+    output reg         valid_E,
+
     output reg  [31:0] rd1_E,
     output reg  [31:0] rd2_E,
     output reg  [4:0]  rs_E,
@@ -56,7 +48,7 @@ module id_ex_reg (
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            // Reset all control signals
+
             reg_dst_E      <= 1'b0;
             alu_src_E      <= 1'b0;
             alu_ctrl_E     <= 4'b0;
@@ -67,8 +59,7 @@ module id_ex_reg (
             hilo_mux_ctrl_E <= 2'b0;
             jal_E          <= 1'b0;
             valid_E        <= 1'b0;
-            
-            // Reset data
+
             rd1_E          <= 32'b0;
             rd2_E          <= 32'b0;
             rs_E           <= 5'b0;
@@ -79,7 +70,7 @@ module id_ex_reg (
             pc_plus4_E     <= 32'b0;
         end
         else if (flush) begin
-            // Insert bubble - clear control signals only
+
             reg_dst_E      <= 1'b0;
             alu_src_E      <= 1'b0;
             alu_ctrl_E     <= 4'b0;
@@ -90,8 +81,7 @@ module id_ex_reg (
             hilo_mux_ctrl_E <= 2'b0;
             jal_E          <= 1'b0;
             valid_E        <= 1'b0;
-            
-            // Keep data (though it won't be used)
+
             rd1_E          <= rd1_D;
             rd2_E          <= rd2_D;
             rs_E           <= rs_D;
@@ -102,7 +92,7 @@ module id_ex_reg (
             pc_plus4_E     <= pc_plus4_D;
         end
         else begin
-            // Normal operation
+
             reg_dst_E      <= reg_dst_D;
             alu_src_E      <= alu_src_D;
             alu_ctrl_E     <= alu_ctrl_D;
@@ -113,7 +103,7 @@ module id_ex_reg (
             hilo_mux_ctrl_E <= hilo_mux_ctrl_D;
             jal_E          <= jal_D;
             valid_E        <= valid_D;
-            
+
             rd1_E          <= rd1_D;
             rd2_E          <= rd2_D;
             rs_E           <= rs_D;
