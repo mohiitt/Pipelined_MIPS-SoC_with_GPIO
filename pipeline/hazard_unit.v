@@ -21,6 +21,10 @@ module hazard_unit (
     input  wire [4:0]  write_reg_M,    // Write register in MEM stage
     input  wire        we_reg_M,       // Register write enable in MEM
     
+    // Inputs from WB stage (MEM/WB pipeline register)
+    input  wire [4:0]  write_reg_W,    // Write register in WB stage
+    input  wire        we_reg_W,       // Register write enable in WB
+    
     // Control outputs
     output wire        stall_F,        // Stall PC
     output wire        stall_D,        // Stall IF/ID register
@@ -54,11 +58,26 @@ module hazard_unit (
     // If either is being written by instruction in EX or MEM, stall
     // Note: For optimal performance, could add forwarding to ID instead
     // ========================================================================
+    // ========================================================================
+    // Branch Hazard Detection
+    // Branch compares rs and rt in ID stage
+    // If either is being written by instruction in EX or MEM, stall
+    // Note: For optimal performance, could add forwarding to ID instead
+    // ========================================================================
+    // ========================================================================
+    // Branch Hazard Detection
+    // Branch compares rs and rt in ID stage
+    // If either is being written by instruction in EX or MEM or WB, stall
+    // Note: EXTENDED to WB to ensure regfile write completes before read
+    // ========================================================================
+    // Branch Hazard Detection
+    // Branch compares rs and rt in ID stage
+    // If instruction in EX is a LOAD and writes to rs or rt, we MUST stall (Load-Use)
+    // If instruction in EX is ALU op, we forward (no stall)
+    // ========================================================================
     assign branch_stall = branch_D && 
-                          ((we_reg_E && (write_reg_E != 5'b0) && 
-                            ((write_reg_E == rs_D) || (write_reg_E == rt_D))) ||
-                           (we_reg_M && (write_reg_M != 5'b0) && 
-                            ((write_reg_M == rs_D) || (write_reg_M == rt_D))));
+                          (dm2reg_E && (write_reg_E != 5'b0) && 
+                           ((write_reg_E == rs_D) || (write_reg_E == rt_D)));
     
     // ========================================================================
     // Stall and Flush Logic

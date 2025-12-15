@@ -19,6 +19,7 @@ module id_ex_reg (
     input  wire        we_reg_D,
     input  wire        hilo_wd_D,
     input  wire [1:0]  hilo_mux_ctrl_D,
+    input  wire        jal_D, // Add jal_D input
     
     // Data from ID stage
     input  wire [31:0] rd1_D,          // Register read data 1
@@ -39,6 +40,7 @@ module id_ex_reg (
     output reg         we_reg_E,
     output reg         hilo_wd_E,
     output reg  [1:0]  hilo_mux_ctrl_E,
+    output reg         jal_E, // Add jal_E output
     
     output reg  [31:0] rd1_E,
     output reg  [31:0] rd2_E,
@@ -61,6 +63,7 @@ module id_ex_reg (
             we_reg_E       <= 1'b0;
             hilo_wd_E      <= 1'b0;
             hilo_mux_ctrl_E <= 2'b0;
+            jal_E          <= 1'b0;
             
             // Reset data
             rd1_E          <= 32'b0;
@@ -82,6 +85,7 @@ module id_ex_reg (
             we_reg_E       <= 1'b0;
             hilo_wd_E      <= 1'b0;
             hilo_mux_ctrl_E <= 2'b0;
+            jal_E          <= 1'b0;
             
             // Keep data (though it won't be used)
             rd1_E          <= rd1_D;
@@ -103,6 +107,7 @@ module id_ex_reg (
             we_reg_E       <= we_reg_D;
             hilo_wd_E      <= hilo_wd_D;
             hilo_mux_ctrl_E <= hilo_mux_ctrl_D;
+            jal_E          <= jal_D;
             
             rd1_E          <= rd1_D;
             rd2_E          <= rd2_D;

@@ -12,6 +12,7 @@ module mem_wb_reg (
     input  wire        dm2reg_M,
     input  wire        we_reg_M,
     input  wire [1:0]  hilo_mux_ctrl_M,
+    input  wire        jal_M, // Add jal_M input
     
     // Data from MEM stage
     input  wire [31:0] alu_out_M,      // ALU result or HI/LO value
@@ -25,6 +26,7 @@ module mem_wb_reg (
     output reg         dm2reg_W,
     output reg         we_reg_W,
     output reg  [1:0]  hilo_mux_ctrl_W,
+    output reg         jal_W, // Add jal_W output
     
     output reg  [31:0] alu_out_W,
     output reg  [31:0] rd_dm_W,
@@ -39,6 +41,7 @@ module mem_wb_reg (
             dm2reg_W       <= 1'b0;
             we_reg_W       <= 1'b0;
             hilo_mux_ctrl_W <= 2'b0;
+            jal_W          <= 1'b0;
             
             alu_out_W      <= 32'b0;
             rd_dm_W        <= 32'b0;
@@ -51,6 +54,7 @@ module mem_wb_reg (
             dm2reg_W       <= dm2reg_M;
             we_reg_W       <= we_reg_M;
             hilo_mux_ctrl_W <= hilo_mux_ctrl_M;
+            jal_W          <= jal_M;
             
             alu_out_W      <= alu_out_M;
             rd_dm_W        <= rd_dm_M;

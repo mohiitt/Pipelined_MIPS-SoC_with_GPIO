@@ -21,7 +21,6 @@ module tb_pipelined_mips_top;
     
     // Cycle counter for analysis
     integer cycle_count;
-    integer instruction_count;
     
     // Instantiate pipelined MIPS top module
     pipelined_mips_top DUT (
@@ -45,6 +44,16 @@ module tb_pipelined_mips_top;
         forever #5 clk = ~clk;
     end
     
+    // Cycle counter
+    initial begin
+        cycle_count = 0;
+    end
+    
+    always @(posedge clk) begin
+        if (!rst) cycle_count = cycle_count + 1;
+        else cycle_count = 0;
+    end
+
     // Simulation control
     initial begin
         $dumpfile("pipelined_mips_tb.vcd");
@@ -55,35 +64,9 @@ module tb_pipelined_mips_top;
         $display("Pipelined MIPS CPU Testbench");
         $display("========================================");
         $display("");
-        $display("Time | Cycle | PC   | Instruction | ALU Out  | Mem WE | Description");
-        $display("-----|-------|------|-------------|----------|--------|------------------");
-    end
-    
-    // Monitor pipeline operation
-    always @(posedge clk) begin
-        if (!rst) begin
-            $display("%4t | %5d | %04h | %08h    | %08h | %1b      | %s", 
-                     $time, cycle_count, pc, instr, alu_out, we_dm, 
-                     decode_instruction(instr));
-        end
-    end
-    
-    // Cycle counter
-    initial begin
-        cycle_count = 0;
-        instruction_count = 0;
-    end
-    
-    always @(posedge clk) begin
-        if (!rst) begin
-            cycle_count = cycle_count + 1;
-        end else begin
-            cycle_count = 0;
-        end
-    end
-    
-    // Test sequence
-    initial begin
+        $display("Time | Cycle | PC   | Instruction | ALU Out  | ID WE  | Desc | StallF/D FlushE");
+        $display("-----|-------|------|-------------|----------|--------|------|----------------");
+        
         // Initialize
         rst = 1;
         ra3 = 5'h0;
@@ -96,62 +79,64 @@ module tb_pipelined_mips_top;
         $display("=== Starting Pipeline Execution ===");
         $display("");
         
-        // Run for sufficient cycles to complete program
-        // Adjust this based on your program length
-        #500;
+        // Run until timeout (safeguard)
+        #5000;
         
-        $display("");
-        $display("=== Pipeline Statistics ===");
-        $display("Total cycles: %d", cycle_count);
-        $display("CPI: %f", cycle_count / 20.0); // Assuming ~20 instructions
-        $display("");
-        
-        // Test register file contents
-        $display("=== Register File Contents ===");
-        test_registers();
-        
-        $display("");
-        $display("========================================");
-        $display("Testbench Complete");
-        $display("========================================");
-        
-        $finish;
-    end
-    
-    // Timeout watchdog
-    initial begin
-        #10000;
         $display("ERROR: Simulation timeout!");
         $finish;
     end
     
-    // Task to read and display register values
-    task test_registers;
-        integer i;
-        begin
-            $display("Register values:");
-            for (i = 0; i < 32; i = i + 1) begin
-                ra3 = i;
-                #1;
-                if (rd3 !== 32'hxxxxxxxx && rd3 !== 0)
-                    $display("  $%0d = 0x%08h (%0d)", i, rd3, rd3);
+    // Monitor Pipeline including Stalls and Flushes
+    always @(posedge clk) begin
+        if (!rst) begin
+            $display("%4t | %5d | %04h | %08h    | %08h | %1b      | %s | %b/%b %b", 
+                     $time, cycle_count, pc, instr, DUT.cpu.dp.alu_out_M, 
+                     DUT.cpu.dp.we_dm_D, // Show ID stage WE to match instruction being decoded
+                     decode_instruction(instr),
+                     DUT.cpu.dp.stall_F, DUT.cpu.dp.stall_D, DUT.cpu.dp.flush_E);
+                     
+            // Assertion for SLT memory write safety
+            if (DUT.cpu.dp.opcode_D == 6'b000000 && DUT.cpu.dp.funct_D == 6'b101010) begin // SLT
+                if (DUT.cpu.dp.we_dm_D == 1) $display("ERROR: SLT has MemWrite set!");
             end
-            ra3 = 0;
         end
-    endtask
-    
+    end
+
+    // End of simulation detection
+    always @(posedge clk) begin
+        if (!rst && pc == 32'h58) begin // End of program address
+            $display("Program finished at cycle %d", cycle_count);
+            $display("========================================");
+            $display("Pipeline Statistics");
+            $display("Total cycles: %d", cycle_count);
+            $display("Approx. instructions: 54");
+            $display("Estimated CPI: %f", $itor(cycle_count)/54.0);
+            $display("========================================");
+            $display("Final Register States:");
+            
+            // Check specific registers as requested
+            $display("Register values:");
+            // We use the register file directly or the test port
+            // Test port ra3/rd3 usage:
+            ra3 = 2; #1; $display("  $2  = 0x%08h (%0d)", rd3, rd3);
+            ra3 = 4; #1; $display("  $4  = 0x%08h (%0d)", rd3, rd3);
+            ra3 = 8; #1; $display("  $8  = 0x%08h (%0d)", rd3, rd3);
+            ra3 = 16; #1; $display("  $16 = 0x%08h (%0d)", rd3, rd3);
+            ra3 = 29; #1; $display("  $29 = 0x%08h (%0d)", rd3, rd3);
+            ra3 = 31; #1; $display("  $31 = 0x%08h (%0d)", rd3, rd3);
+            
+            $finish;
+        end
+    end
+
     // Function to decode instruction for display
-    function [200*8:1] decode_instruction;
+    function [8*7:1] decode_instruction;
         input [31:0] inst;
         reg [5:0] opcode;
         reg [5:0] funct;
-        reg [4:0] rs, rt, rd;
         begin
             opcode = inst[31:26];
             funct = inst[5:0];
-            rs = inst[25:21];
-            rt = inst[20:16];
-            rd = inst[15:11];
             
             case (opcode)
                 6'b000000: begin // R-type

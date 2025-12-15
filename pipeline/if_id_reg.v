@@ -24,17 +24,18 @@ module if_id_reg (
             instr_D   <= 32'b0;
             pc_plus4_D <= 32'b0;
         end
-        else if (flush) begin
-            // Insert NOP (bubble) - all zeros
-            instr_D   <= 32'b0;
-            pc_plus4_D <= 32'b0;
-        end
         else if (enable) begin
-            // Normal update
-            instr_D   <= instr_F;
-            pc_plus4_D <= pc_plus4_F;
+            if (flush) begin
+                // Insert NOP (bubble) - all zeros
+                instr_D   <= 32'b0;
+                pc_plus4_D <= 32'b0;
+            end
+            else begin
+                // Normal update
+                instr_D   <= instr_F;
+                pc_plus4_D <= pc_plus4_F;
+            end
         end
-        // else: stalled, hold current values
     end
 
 endmodule

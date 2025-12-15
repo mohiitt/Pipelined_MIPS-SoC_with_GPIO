@@ -176,6 +176,7 @@ module pipelined_datapath (
                        pc_plus4_F;
     
     // Flush IF/ID on control transfers
+    // Program requires No Delay Slots (Flush on Branch/Jump)
     assign flush_D = (jump_D | jal_D | pc_src_D | jump_reg_D);
     
     // ========================================================================
@@ -257,7 +258,33 @@ module pipelined_datapath (
     assign jta_D = {pc_plus4_D[31:28], instr_D[25:0], 2'b00};
     
     // Branch comparator (early branch resolution in ID)
-    assign zero_D = (rd1_D == rd2_D);
+    // Forwarding logic for Branch Comparator to resolve MEM/EX stage hazards
+    reg [31:0] cmp1_D;
+    reg [31:0] cmp2_D;
+    
+    always @(*) begin
+        // Forward A: Check EX stage (ALU forwarding to ID)
+        // If EX instruction writes to register and it's an ALU op (not load), we can forward alu_out_E
+        // Note: We check if it's NOT a load (dm2reg_E indicates load)
+        if ((rs_D != 0) && (rs_D == write_reg_E) && we_reg_E && !dm2reg_E)
+            cmp1_D = alu_out_E;
+        // Forward A: Check MEM stage
+        else if ((rs_D != 0) && (rs_D == write_reg_M) && we_reg_M)
+            cmp1_D = alu_out_M;
+        else
+            cmp1_D = rd1_D;
+
+        // Forward B: Check EX stage
+        if ((rt_D != 0) && (rt_D == write_reg_E) && we_reg_E && !dm2reg_E)
+            cmp2_D = alu_out_E;
+        // Forward B: Check MEM stage
+        else if ((rt_D != 0) && (rt_D == write_reg_M) && we_reg_M)
+            cmp2_D = alu_out_M;
+        else
+            cmp2_D = rd2_D;
+    end
+
+    assign zero_D = (cmp1_D == cmp2_D);
     assign pc_src_D = branch_D & zero_D;
     
     // ========================================================================
@@ -274,6 +301,8 @@ module pipelined_datapath (
         .dm2reg_E(dm2reg_E),
         .write_reg_M(write_reg_M),
         .we_reg_M(we_reg_M),
+        .write_reg_W(write_reg_W),
+        .we_reg_W(we_reg_W),
         .stall_F(stall_F),
         .stall_D(stall_D),
         .flush_E(flush_E)
@@ -285,7 +314,7 @@ module pipelined_datapath (
     id_ex_reg id_ex (
         .clk(clk),
         .rst(rst),
-        .flush(flush_E | flush_D),
+        .flush(flush_E),
         .reg_dst_D(reg_dst_D),
         .alu_src_D(alu_src_D),
         .alu_ctrl_D(alu_ctrl_D),
@@ -294,6 +323,7 @@ module pipelined_datapath (
         .we_reg_D(we_reg_D),
         .hilo_wd_D(hilo_wd_D),
         .hilo_mux_ctrl_D(hilo_mux_ctrl_D),
+        .jal_D(jal_D),
         .rd1_D(rd1_D),
         .rd2_D(rd2_D),
         .rs_D(rs_D),
@@ -310,6 +340,7 @@ module pipelined_datapath (
         .we_reg_E(we_reg_E),
         .hilo_wd_E(hilo_wd_E),
         .hilo_mux_ctrl_E(hilo_mux_ctrl_E),
+        .jal_E(jal_E),
         .rd1_E(rd1_E),
         .rd2_E(rd2_E),
         .rs_E(rs_E),
@@ -372,12 +403,14 @@ module pipelined_datapath (
     );
     
     // Write register selection
+    wire [4:0] write_reg_tmp_E;
     mux2 #(5) write_reg_mux (
         .sel(reg_dst_E),
         .a(rt_E),
         .b(rd_E),
-        .y(write_reg_E)
+        .y(write_reg_tmp_E)
     );
+    assign write_reg_E = (jal_E) ? 5'd31 : write_reg_tmp_E;
     
     // ========================================================================
     // EX/MEM Pipeline Register
@@ -390,16 +423,19 @@ module pipelined_datapath (
         .we_reg_E(we_reg_E),
         .hilo_wd_E(hilo_wd_E),
         .hilo_mux_ctrl_E(hilo_mux_ctrl_E),
+        .jal_E(jal_E),
         .alu_out_E(alu_out_E),
         .wd_dm_E(alu_pb_fwd),
         .write_reg_E(write_reg_E),
         .pc_plus4_E(pc_plus4_E),
         .mult_product_E(mult_product_E),
+        
         .we_dm_M(we_dm_M),
         .dm2reg_M(dm2reg_M),
         .we_reg_M(we_reg_M),
         .hilo_wd_M(hilo_wd_M),
         .hilo_mux_ctrl_M(hilo_mux_ctrl_M),
+        .jal_M(jal_M),
         .alu_out_M(alu_out_M),
         .wd_dm_M(wd_dm_M),
         .write_reg_M(write_reg_M),
@@ -430,15 +466,18 @@ module pipelined_datapath (
         .dm2reg_M(dm2reg_M),
         .we_reg_M(we_reg_M),
         .hilo_mux_ctrl_M(hilo_mux_ctrl_M),
+        .jal_M(jal_M),
         .alu_out_M(alu_out_M),
         .rd_dm_M(rd_dm),
         .write_reg_M(write_reg_M),
         .pc_plus4_M(pc_plus4_M),
         .hi_out_M(hi_out_M),
         .lo_out_M(lo_out_M),
+        
         .dm2reg_W(dm2reg_W),
         .we_reg_W(we_reg_W),
         .hilo_mux_ctrl_W(hilo_mux_ctrl_W),
+        .jal_W(jal_W),
         .alu_out_W(alu_out_W),
         .rd_dm_W(rd_dm_W),
         .write_reg_W(write_reg_W),
@@ -446,7 +485,7 @@ module pipelined_datapath (
         .hi_out_W(hi_out_W),
         .lo_out_W(lo_out_W)
     );
-    
+
     // ========================================================================
     // WB STAGE
     // ========================================================================
@@ -472,8 +511,10 @@ module pipelined_datapath (
     // JAL support - detect JAL in pipeline
     // JAL writes $ra (reg 31) instead of normal destination
     // JAL writes PC+4 instead of ALU/memory result
-    assign jal_W = (write_reg_W == 5'd31) && we_reg_W;  // Simplified JAL detection
+    // assign jal_W = (write_reg_W == 5'd31) && we_reg_W;  // REMOVED: Now using explicit passed signal
     assign final_write_reg_W = write_reg_W;  // Already set to 31 by reg_dst mux in ID
+    assign final_write_reg_W = write_reg_W;  // Already set to 31 by reg_dst mux in ID
+    // JAL saves PC+4 (Return Address) - No Delay Slot
     assign final_wd_W = jal_W ? pc_plus4_W : result_W;
 
 endmodule
