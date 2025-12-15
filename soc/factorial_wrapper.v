@@ -97,7 +97,13 @@ module factorial_wrapper (
             status_reg <= 1'b0;
             result_reg <= 32'h00000000;
         end else begin
-            status_reg <= fact_done;
+            // Clear status when starting new operation
+            if (memWrite && (addr == FACT_CTRL_ADDR) && wdata[0])
+                status_reg <= 1'b0;
+            // Set status when done (sticky)
+            else if (fact_done)
+                status_reg <= 1'b1;
+            
             if (fact_done) begin
                 result_reg <= fact_result;
             end

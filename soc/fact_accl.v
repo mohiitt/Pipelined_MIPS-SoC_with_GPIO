@@ -72,7 +72,7 @@ module factorial_accelerator #(
     
     // MUX_2 (selects between 0 and reg_out)
     wire [DATA_WIDTH-1:0] mux_2_out;
-    assign mux_2_out = sel_mux_2 ? reg_out : 32'd0;
+    assign mux_2_out = sel_mux_2 ? mux_1_out : 32'd0;
     // State machine - sequential logic
     always @(posedge clk or posedge reset) begin
         if (reset)
@@ -100,6 +100,7 @@ module factorial_accelerator #(
                         next_state = DONE;
                         error = 1'b1;
                         sel_mux_2 = 1'b0; // Select 0 for error
+                        load_reg = 1'b1;  // Update result register
                     end else if (n == 0 || n == 1) begin
                         next_state = DONE;
                         load_reg = 1'b1;
@@ -141,7 +142,7 @@ module factorial_accelerator #(
         if (reset)
             result <= 0;
         else if (load_reg)
-            result <= mux_1_out;
+            result <= mux_2_out;
     end
 
 endmodule

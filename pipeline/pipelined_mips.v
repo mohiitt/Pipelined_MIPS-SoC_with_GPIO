@@ -14,6 +14,7 @@ module pipelined_mips (
     output wire [31:0] pc_current,     // Current PC (for IMEM)
     output wire [31:0] alu_out,        // Address for DMEM
     output wire [31:0] wd_dm,          // Write data for DMEM
+    output wire        mem_read_dm,    // DMEM read enable
     output wire [31:0] rd3             // Test read output
 );
 
@@ -28,7 +29,8 @@ module pipelined_mips (
         .pc_F(pc_current),
         .alu_out_M(alu_out),
         .wd_dm_M(wd_dm),
-        .we_dm_M(we_dm)
+        .we_dm_M(we_dm),
+        .mem_read_M(mem_read_dm)
     );
 
 endmodule

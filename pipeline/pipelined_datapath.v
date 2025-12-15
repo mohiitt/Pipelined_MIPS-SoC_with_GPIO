@@ -20,7 +20,8 @@ module pipelined_datapath (
     output wire [31:0] pc_F,           // PC for instruction fetch
     output wire [31:0] alu_out_M,      // Address for data memory
     output wire [31:0] wd_dm_M,        // Write data for memory
-    output wire        we_dm_M         // Memory write enable
+    output wire        we_dm_M,        // Memory write enable
+    output wire        mem_read_M      // Memory read enable (from dm2reg)
 );
 
     // ========================================================================
@@ -583,5 +584,8 @@ module pipelined_datapath (
     assign final_write_reg_W = write_reg_W;  // Already set to 31 by reg_dst mux in ID
     // JAL saves PC+4 (Return Address) - No Delay Slot
     assign final_wd_W = jal_W ? pc_plus4_W : result_W;
+    
+    // Output assignment
+    assign mem_read_M = dm2reg_M;
 
 endmodule

@@ -83,8 +83,8 @@ module soc_top (
         .rst    (rst),
         .we     (cs_data_mem & cpu_memWrite),
         .a      (dmem_addr_6bit),
-        .d      (cpu_wdata),
-        .q      (rdata_data_mem)
+        .wd     (cpu_wdata),
+        .rd     (rdata_data_mem)
     );
     
     // ========================================
