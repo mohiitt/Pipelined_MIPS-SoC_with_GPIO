@@ -44,14 +44,21 @@ module tb_pipelined_mips_top;
         forever #5 clk = ~clk;
     end
     
-    // Cycle counter
+    // Cycle and Instruction counter
+    integer instruction_count;
     initial begin
         cycle_count = 0;
+        instruction_count = 0;
     end
     
     always @(posedge clk) begin
         if (!rst) cycle_count = cycle_count + 1;
         else cycle_count = 0;
+        
+        // Count retired instructions (valid in WB stage)
+        if (!rst && DUT.cpu.dp.valid_W) begin
+            instruction_count = instruction_count + 1;
+        end
     end
 
     // Simulation control
@@ -64,8 +71,8 @@ module tb_pipelined_mips_top;
         $display("Pipelined MIPS CPU Testbench");
         $display("========================================");
         $display("");
-        $display("Time | Cycle | PC   | Instruction | ALU Out  | ID WE  | Desc | StallF/D FlushE");
-        $display("-----|-------|------|-------------|----------|--------|------|----------------");
+        $display("Time | Cycle | PC   | Instruction | ALU Out  | ID WE  | Desc | StallF/D FlushE/D | Val D E W");
+        $display("-----|-------|------|-------------|----------|--------|------|-------------------|-----------");
         
         // Initialize
         rst = 1;
@@ -87,13 +94,26 @@ module tb_pipelined_mips_top;
     end
     
     // Monitor Pipeline including Stalls and Flushes
-    always @(posedge clk) begin
+    // Sample on negedge to capture stable hazard signals generated during the cycle
+    always @(negedge clk) begin
         if (!rst) begin
-            $display("%4t | %5d | %04h | %08h    | %08h | %1b      | %s | %b/%b %b", 
+            $display("%4t | %5d | %04h | %08h    | %08h | %1b      | %s | %b/%b %b %b    | %b %b %b", 
                      $time, cycle_count, pc, instr, DUT.cpu.dp.alu_out_M, 
                      DUT.cpu.dp.we_dm_D, // Show ID stage WE to match instruction being decoded
                      decode_instruction(instr),
-                     DUT.cpu.dp.stall_F, DUT.cpu.dp.stall_D, DUT.cpu.dp.flush_E);
+                     DUT.cpu.dp.stall_F, DUT.cpu.dp.stall_D, DUT.cpu.dp.flush_E, DUT.cpu.dp.flush_D,
+                     DUT.cpu.dp.valid_D, DUT.cpu.dp.valid_E, DUT.cpu.dp.valid_W);
+            
+            // Debug Hazards inputs
+            // Uses hierarchical path to hazard unit (dut.cpu.dp.hdu)
+            // Comment out if hdu instance name differs
+            // $display("Hazards: lwstall=%b BranchD=%b JumpD=%b JumpRegD=%b StallF=%b FlushD=%b",
+            //          DUT.cpu.dp.hdu.lwstall, 
+            //          DUT.cpu.dp.pc_src_D, 
+            //          DUT.cpu.dp.jump_D, 
+            //          DUT.cpu.dp.jump_reg_D, 
+            //          DUT.cpu.dp.stall_F, 
+            //          DUT.cpu.dp.flush_D);
                      
             // Assertion for SLT memory write safety
             if (DUT.cpu.dp.opcode_D == 6'b000000 && DUT.cpu.dp.funct_D == 6'b101010) begin // SLT
@@ -109,8 +129,8 @@ module tb_pipelined_mips_top;
             $display("========================================");
             $display("Pipeline Statistics");
             $display("Total cycles: %d", cycle_count);
-            $display("Approx. instructions: 54");
-            $display("Estimated CPI: %f", $itor(cycle_count)/54.0);
+            $display("Total Retired Instructions: %d", instruction_count);
+            $display("Estimated CPI: %f", $itor(cycle_count)/$itor(instruction_count));
             $display("========================================");
             $display("Final Register States:");
             

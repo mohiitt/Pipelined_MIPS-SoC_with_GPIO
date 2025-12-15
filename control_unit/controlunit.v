@@ -12,7 +12,8 @@ module controlunit (
     output wire [3:0]  alu_ctrl,
     output wire        jump_reg,
     output wire        hilo_wd, 
-    output wire [1:0] hilo_mux_ctrl
+    output wire [1:0] hilo_mux_ctrl,
+    output wire       valid_inst
 );
 
     wire [1:0] alu_op;
@@ -30,7 +31,8 @@ module controlunit (
         .alu_src        (alu_src),
         .we_dm          (we_dm),
         .dm2reg         (dm2reg),
-        .alu_op         (alu_op)
+        .alu_op         (alu_op),
+        .valid_inst     (valid_inst)
     );
 
     auxdec ad (
